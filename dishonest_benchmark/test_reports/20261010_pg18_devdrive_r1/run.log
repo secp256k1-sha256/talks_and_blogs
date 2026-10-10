@@ -1,0 +1,47 @@
+[16:18:49] ===== PostgreSQL 18 =====
+[16:18:59] baseline active: fsync=on max_connections=1000 shared_buffers=131072 synchronous_commit=on wal_buffers=8192 wal_sync_method=open_datasync
+NOTICE:  database "pgbench_darkside" does not exist, skipping
+[16:19:06] warm-up 15s
+[16:19:29] [pg18 r1  1/20] Case 0: bad code / missing index (honest-ish.sql, simple) cheat=[-] fk=1 idx=0
+[16:21:30]         tps=583.934881 ops/s=583.93 lat=54.801ms wal/tx=986.9B failed=0 rc=0
+[16:21:38] [pg18 r1  2/20] Indexed baseline (honest-ish.sql, simple) cheat=[-] fk=1 idx=1
+[16:23:39]         tps=22705.317504 ops/s=22705.32 lat=1.409ms wal/tx=594.9B failed=0 rc=0
+[16:23:49] [pg18 r1  3/20] synchronous_commit=off (honest-ish.sql, simple) cheat=[synchronous_commit=off] fk=1 idx=1
+[16:25:50]         tps=24354.919330 ops/s=24354.92 lat=1.314ms wal/tx=594.2B failed=0 rc=0
+[16:25:59] [pg18 r1  4/20] full_page_writes=off (honest-ish.sql, simple) cheat=[full_page_writes=off] fk=1 idx=1
+[16:28:00]         tps=23389.515962 ops/s=23389.52 lat=1.368ms wal/tx=583.3B failed=0 rc=0
+[16:28:09] [pg18 r1  5/20] fsync=off (honest-ish.sql, simple) cheat=[fsync=off] fk=1 idx=1
+[16:30:10]         tps=24522.402165 ops/s=24522.40 lat=1.305ms wal/tx=594.1B failed=0 rc=0
+[16:30:19] [pg18 r1  6/20] checkpoint tuning (honest-ish.sql, simple) cheat=[checkpoint_timeout=1800 max_wal_size=65536] fk=1 idx=1
+[16:32:20]         tps=23124.203381 ops/s=23124.20 lat=1.384ms wal/tx=594.9B failed=0 rc=0
+[16:32:29] [pg18 r1  7/20] all durability off (honest-ish.sql, simple) cheat=[fsync=off full_page_writes=off synchronous_commit=off] fk=1 idx=1
+[16:34:29]         tps=24666.020504 ops/s=24666.02 lat=1.297ms wal/tx=583.2B failed=0 rc=0
+[16:34:37] [pg18 r1  8/20] less work (drop FK/SELECT/audit) (less_work.sql, simple) cheat=[-] fk=0 idx=1
+[16:36:38]         tps=45143.269161 ops/s=45143.27 lat=0.709ms wal/tx=341.3B failed=0 rc=0
+[16:36:46] [pg18 r1  9/20] UNLOGGED ledger/audit (unlogged.sql, simple) cheat=[-] fk=1 idx=1
+[16:38:47]         tps=37779.954687 ops/s=37779.95 lat=0.847ms wal/tx=188.5B failed=0 rc=0
+[16:38:55] [pg18 r1 10/20] stored procedure (procedure.sql, simple) cheat=[-] fk=1 idx=1
+[16:40:56]         tps=74472.541923 ops/s=74472.54 lat=0.430ms wal/tx=605.5B failed=0 rc=0
+[16:41:04] [pg18 r1 11/20] prepared protocol (honest-ish.sql, prepared) cheat=[-] fk=1 idx=1
+[16:43:05]         tps=34684.465072 ops/s=34684.47 lat=0.923ms wal/tx=599.8B failed=0 rc=0
+[16:43:13] [pg18 r1 12/20] prepared + pipelined (honest-ish-pipeline.sql, prepared) cheat=[-] fk=1 idx=1
+[16:45:14]         tps=76176.071624 ops/s=76176.07 lat=0.420ms wal/tx=604.5B failed=0 rc=0
+[16:45:22] [pg18 r1 13/20] batching x8 (batch.sql, simple) cheat=[-] fk=1 idx=1
+[16:47:23]         tps=24098.689438 ops/s=192789.52 lat=1.328ms wal/tx=4138.0B failed=0 rc=0
+[16:47:32] [pg18 r1 14/20] batching x32 (batch32.sql, simple) cheat=[-] fk=1 idx=1
+[16:49:33]         tps=8425.523538 ops/s=269616.75 lat=3.798ms wal/tx=19226.3B failed=0 rc=0
+[16:49:43] [pg18 r1 15/20] stored proc + prepared (procedure.sql, prepared) cheat=[-] fk=1 idx=1
+[16:51:44]         tps=77678.481096 ops/s=77678.48 lat=0.412ms wal/tx=604.4B failed=0 rc=0
+[16:51:53] [pg18 r1 16/20] all cheats + batch x32 (batch32.sql, prepared) cheat=[checkpoint_timeout=1800 fsync=off full_page_writes=off max_wal_size=65536 synchronous_commit=off] fk=0 idx=1
+[16:53:54]         tps=11098.964006 ops/s=355166.85 lat=2.883ms wal/tx=16500.6B failed=0 rc=0
+[16:54:07] [pg18 r1 17/20] all cheats + mega-batch x1000 (megabatch.sql, prepared) cheat=[checkpoint_timeout=1800 fsync=off full_page_writes=off max_wal_size=65536 synchronous_commit=off] fk=0 idx=1
+[16:56:09]         tps=46.558299 ops/s=46558.30 lat=673.968ms wal/tx=513452.1B failed=111 rc=0
+[16:56:18] [pg18 r1 18/20] stored function (SQL) (sqlfunction.sql, simple) cheat=[-] fk=1 idx=1
+[16:58:19]         tps=72742.699701 ops/s=72742.70 lat=0.440ms wal/tx=608.6B failed=0 rc=0
+[16:58:27] [pg18 r1 19/20] sql function + prepared (sqlfunction.sql, prepared) cheat=[-] fk=1 idx=1
+[17:00:28]         tps=80177.794618 ops/s=80177.79 lat=0.399ms wal/tx=601.7B failed=0 rc=0
+[17:00:38] [pg18 r1 20/20] all cheats + batch x32 (SQL fn) (batch32_sqlfn.sql, prepared) cheat=[checkpoint_timeout=1800 fsync=off full_page_writes=off max_wal_size=65536 synchronous_commit=off] fk=0 idx=1
+[17:02:39]         tps=11337.152514 ops/s=362788.88 lat=2.823ms wal/tx=16986.8B failed=0 rc=0
+[17:02:39] round 1 done -> /c/cld/talks_and_blogs/dishonest_benchmark/test_reports/20261010_pg18_devdrive_r1/pg18/results_round1.csv
+[17:02:41] PostgreSQL 18 finished; original auto.conf restored; service stopped
+[17:02:41] ALL DONE

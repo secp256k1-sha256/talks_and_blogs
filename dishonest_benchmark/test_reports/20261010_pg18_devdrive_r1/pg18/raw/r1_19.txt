@@ -1,0 +1,13 @@
+pgbench (18.6)
+transaction type: C:/cld/talks_and_blogs/dishonest_benchmark/sql/sqlfunction.sql
+scaling factor: 1
+query mode: prepared
+number of clients: 32
+number of threads: 8
+maximum number of tries: 1
+duration: 120 s
+number of transactions actually processed: 9601081
+number of failed transactions: 0 (0.000%)
+latency average = 0.399 ms
+initial connection time = 246.286 ms
+tps = 80177.794618 (without initial connection time)
