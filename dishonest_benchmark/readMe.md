@@ -1,7 +1,8 @@
 # My Dishonest Benchmark
 
 > Reproduction pack for the **“Dishonest Benchmark”** PostgreSQL pgbench experiments.
-> Includes the SQL scripts, server-setting toggles, and PowerShell runners used to reproduce the benchmark cases.
+> Includes the SQL scripts, server-setting toggles, and the runners used to reproduce the benchmark cases:
+> PowerShell for Windows (`runners/`) and bash for Linux (`runners_linux/`).
 
 ---
 
@@ -19,7 +20,7 @@
 | Load            | 32 clients / 8 threads                         |
 | Database        | `pgbench_darkside`                             |
 | Connection      | `-h localhost -U postgres -d pgbench_darkside` |
-| Password source | `PGPASSWORD=6174316`                           |
+| Password source | `PGPASSWORD=*******`                           |
 | Dataset         | 100 branches, 1,000,000 accounts               |
 | Audit seed      | 200,000 recent rows in `bench_audit`           |
 
@@ -43,7 +44,8 @@
 | `sql/sqlfunction.sql`         | Calls `bench_txn_sqlfn(:aid, :delta)`                                                            |
 | `sql/batch32_sqlfn.sql`       | Calls `bench_txn_batch_sqlfn(...)` for server-side batch                                         |
 | `sql/megabatch.sql`           | Calls `bench_txn_megabatch(1000)`, run but excluded from blog/PDF                                |
-| `runners/*.ps1`               | PowerShell harness scripts that orchestrate the benchmark suite                                  |
+| `runners/*.ps1`               | PowerShell harness scripts that orchestrate the benchmark suite (Windows)                        |
+| `runners_linux/*.sh`          | Bash port of the same harness for Linux (Ubuntu); shared helpers live in `common.sh`             |
 
 ---
 
@@ -482,6 +484,77 @@ run_all.ps1
 
 > Note: paths inside the scripts point to the original `...\dishonest_benchmark` folder.
 > Adjust them before running on another machine.
+
+---
+
+## Running on Linux (Ubuntu)
+
+`runners_linux/` is a bash port of `runners/`. It runs the same tests with the same protocol, settings, and CSV columns.
+The SQL files are shared, so nothing under `sql/` is Linux-specific.
+
+### 1. Install PostgreSQL 18 from the PGDG repository
+
+Ubuntu's own packages ship an older major version. The baseline sets `io_method`, `io_workers`, and `io_max_concurrency`, which exist only in PostgreSQL 18+.
+
+```bash
+sudo apt install -y postgresql-common
+sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+sudo apt install -y postgresql-18 postgresql-client-18
+```
+
+### 2. Set the password
+
+The runners connect over TCP (`-h localhost`), which Ubuntu authenticates with `scram-sha-256`:
+
+```bash
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD '*******';"
+```
+
+### 3. Apply the baseline and restart once
+
+```bash
+sudo -u postgres psql -f reset_settings.sql
+sudo systemctl restart postgresql@18-main
+```
+
+`run_final.sh` warns if any restart-only setting is still pending (`pg_settings.pending_restart`).
+
+### 4. Run the suite
+
+From any directory:
+
+```bash
+bash runners_linux/run_all.sh
+```
+
+The chain is the same as on Windows:
+
+```text
+run_all.sh
+  └── run_final.sh
+        └── run_sqlfn.sh
+              └── run_sqlfn_finale.sh
+```
+
+Results go to `results_final.csv` in the repo root. Every knob can be overridden through the environment:
+
+| Variable                       | Default                    |
+| ------------------------------ | -------------------------- |
+| `PGHOST` / `PGPORT` / `PGUSER` | `localhost` / `5432` / `postgres` |
+| `PGPASSWORD`                   | `*******`                  |
+| `BENCH_DB`                     | `pgbench_darkside`         |
+| `DUR` / `WARM`                 | `120` / `15` seconds       |
+| `CLIENTS` / `THREADS`          | `32` / `8`                 |
+| `RESULTS`                      | `<repo>/results_final.csv` |
+
+For a quick smoke test: `DUR=5 WARM=2 bash runners_linux/run_all.sh`
+
+### Comparability notes
+
+- Set the CPU governor to `performance` before measuring: `sudo cpupower frequency-set -g performance`.
+- The checkpoint-tuning and all-cheats cases allow `max_wal_size = 64GB`, so make sure `/var/lib/postgresql` has room.
+- Linux and Windows flush WAL differently (`wal_sync_method` defaults differ), so durability-sensitive cases will show different ratios. Compare Linux numbers only with Linux numbers.
+- Keep the `.sh` files LF-only. `runners_linux/.gitattributes` enforces this on checkout. If you copy the folder from Windows by hand, run `sed -i 's/\r$//' runners_linux/*.sh`.
 
 ---
 
