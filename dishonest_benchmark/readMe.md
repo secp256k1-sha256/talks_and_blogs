@@ -3,6 +3,8 @@
 > Reproduction pack for the **“Dishonest Benchmark”** PostgreSQL pgbench experiments.
 > Includes the SQL scripts, server-setting toggles, and the runners used to reproduce the benchmark cases:
 > PowerShell for Windows (`runners/`) and bash for Linux (`runners_linux/`).
+>
+> **Want to run a single test by hand?** See [HOW_TO_RUN.md](HOW_TO_RUN.md): plain `psql` + `pgbench` commands for every case, no scripts needed.
 
 ---
 
